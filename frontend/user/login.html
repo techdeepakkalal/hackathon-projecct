@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — HireWalk</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-left-grid"></div>
+    <div class="auth-left-content">
+      <a href="../index.html" class="auth-logo" style="margin-bottom:48px;display:inline-flex">
+        <div class="auth-logo-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+            <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        HireWalk
+      </a>
+
+      <h2>Your next job<br>is one walk away</h2>
+      <p style="margin-top:14px">Browse walk-in interviews from top companies and book your slot instantly.</p>
+
+      <div class="auth-feature-list">
+        <div class="auth-feature">
+          <div class="auth-feature-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          Instant slot booking
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          AI-powered mock interviews
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          Email confirmation & reminders
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          Voice assistant practice
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-form">
+      <a href="../index.html" class="auth-logo">
+        <div class="auth-logo-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+            <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        HireWalk
+      </a>
+
+      <h2>Welcome back</h2>
+      <p class="subtitle">Sign in to your candidate account</p>
+
+      <div id="alert"></div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-control" id="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Enter your password" autocomplete="current-password"/>
+      </div>
+
+      <button class="btn btn-primary" id="login-btn" onclick="login()" style="width:100%;justify-content:center;padding:13px;font-size:.9rem;margin-top:8px">
+        Sign In
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+
+      <div style="text-align:center;margin-top:24px;font-size:.85rem;color:var(--ink-soft)">
+        Don't have an account?
+        <a href="register.html" style="color:var(--accent);font-weight:600;margin-left:4px">Create one</a>
+      </div>
+
+      <div style="position:relative;margin:28px 0;display:flex;align-items:center;gap:12px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:.75rem;color:var(--ink-faint)">or</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <div style="text-align:center;font-size:.845rem;color:var(--ink-soft)">
+        Are you a company?
+        <a href="../company/login.html" style="color:var(--accent);font-weight:600;margin-left:4px">Company login</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  Auth.redirectIfLoggedIn();
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+
+  async function login() {
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const alertEl  = document.getElementById('alert');
+    const btn      = document.getElementById('login-btn');
+
+    if (!email || !password) {
+      showAlert(alertEl, 'Please enter your email and password');
+      return;
+    }
+
+    setLoading(btn, true, 'Signing in...');
+    try {
+      // ✅ Fixed: was Api.login('user', {...}) — correct function is Api.userLogin()
+      const { token, user } = await Api.userLogin({ email, password });
+      Auth.save(token, user);
+      document.body.classList.add('page-leaving');
+      setTimeout(() => { window.location.href = 'browse.html'; }, 220);
+    } catch (err) {
+      showAlert(alertEl, err.message);
+      setLoading(btn, false);
+    }
+  }
+</script>
+</body>
+</html>

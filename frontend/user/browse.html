@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Browse Interviews — HireWalk</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    /* ── Hero Banner ── */
+    .browse-hero {
+      background: linear-gradient(135deg, var(--ink) 0%, var(--ink-mid) 100%);
+      padding: 48px 24px 88px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .browse-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+
+    .browse-hero::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(200,98,42,.2) 0%, transparent 70%);
+      bottom: -100px; right: -60px;
+      pointer-events: none;
+    }
+
+    .browse-hero-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .browse-hero h1 {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.04em;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .browse-hero h1 em { font-style: italic; color: var(--accent-2); }
+    .browse-hero p { color: rgba(255,255,255,.5); font-size: .9rem; }
+
+    /* ── Search Bar ── */
+    .search-wrap {
+      max-width: 1100px;
+      margin: -32px auto 0;
+      padding: 0 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .search-box {
+      background: var(--surface);
+      border-radius: var(--r);
+      box-shadow: var(--shadow-lg);
+      padding: 6px 6px 6px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--border);
+      transition: var(--t);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent-border);
+      box-shadow: var(--shadow-xl), 0 0 0 3px rgba(200,98,42,.08);
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: .95rem;
+      font-family: var(--font);
+      color: var(--ink);
+      background: transparent;
+      padding: 10px 0;
+    }
+
+    .search-box input::placeholder { color: var(--ink-faint); }
+
+    .filter-pills { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .filter-pill {
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: .775rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--cream-2);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: var(--t-spring);
+      font-family: var(--font);
+      white-space: nowrap;
+    }
+
+    .filter-pill:hover { border-color: var(--accent-border); color: var(--accent); }
+    .filter-pill.active { background: var(--accent); color: #fff; border-color: var(--accent-hover); box-shadow: 0 3px 10px var(--accent-glow); }
+
+    /* ── Content ── */
+    .browse-content {
+      max-width: 1100px;
+      margin: 36px auto 60px;
+      padding: 0 24px;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .results-count { font-size: .85rem; color: var(--ink-soft); font-weight: 500; }
+    .results-count strong { color: var(--accent); font-weight: 700; }
+
+    /* ── Interview Cards ── */
+    .interviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .icard {
+      background: var(--surface);
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: var(--t-spring);
+      animation: cardIn .3s ease both;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .icard:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--border-2);
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Header — dark with accent */
+    .icard-header {
+      background: linear-gradient(135deg, var(--ink) 0%, var(--ink-mid) 100%);
+      padding: 22px 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .icard-header::after {
+      content: '';
+      position: absolute;
+      bottom: -30px; right: -30px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(200,98,42,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Company row */
+    .icard-company-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .company-logo {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: .85rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .company-info { flex: 1; min-width: 0; }
+
+    .company-name {
+      font-size: .8rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .company-status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .68rem;
+      color: #4ade80;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    .status-dot {
+      width: 5px; height: 5px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .icard-role {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 14px;
+      letter-spacing: -.02em;
+    }
+
+    .icard-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .itag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: .7rem;
+      font-weight: 600;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+
+    .itag-accent {
+      background: rgba(200,98,42,.25);
+      border-color: rgba(200,98,42,.4);
+      color: #ffb98a;
+    }
+
+    /* Card Body */
+    .icard-body {
+      padding: 18px 24px;
+      flex: 1;
+    }
+
+    /* Info rows */
+    .icard-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .info-icon {
+      width: 28px; height: 28px;
+      background: var(--accent-light);
+      border: 1px solid var(--accent-border);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .info-text { flex: 1; min-width: 0; }
+
+    .info-label {
+      font-size: .62rem;
+      font-weight: 700;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .info-value {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--ink-mid);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icard-desc {
+      font-size: .8rem;
+      color: var(--ink-soft);
+      line-height: 1.65;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Card Footer */
+    .icard-footer {
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--cream-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .slots-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .775rem;
+      font-weight: 600;
+    }
+
+    .slots-badge.open  { color: var(--success); }
+    .slots-badge.full  { color: var(--danger); }
+    .slots-badge.booked{ color: var(--accent); }
+
+    /* ── Active Booking Banner ── */
+    .active-banner {
+      background: var(--warning-light);
+      border: 1px solid rgba(176,125,26,.25);
+      border-radius: var(--r);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .active-banner-icon {
+      width: 36px; height: 36px;
+      background: rgba(176,125,26,.15);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .active-banner p { font-size: .83rem; color: var(--warning); flex: 1; line-height: 1.55; }
+    .active-banner strong { font-weight: 700; }
+
+    /* ── Booking Modal ── */
+    .book-modal {
+      background: var(--surface);
+      border-radius: var(--r-lg);
+      width: 100%;
+      max-width: 520px;
+      box-shadow: var(--shadow-xl);
+      transform: translateY(16px) scale(.98);
+      transition: transform .28s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .modal-overlay.active .book-modal { transform: translateY(0) scale(1); }
+
+    .book-modal-header {
+      background: linear-gradient(135deg, var(--ink) 0%, var(--ink-mid) 100%);
+      padding: 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .book-modal-header::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+    }
+
+    .book-modal-header::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; right: -40px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(200,98,42,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .modal-header-info { position: relative; z-index: 1; }
+
+    .modal-company-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: .7rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.7);
+      margin-bottom: 8px;
+    }
+
+    .book-modal-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.02em;
+      margin-bottom: 4px;
+    }
+
+    .modal-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .modal-meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .75rem;
+      color: rgba(255,255,255,.6);
+      font-weight: 500;
+    }
+
+    .modal-close-btn {
+      width: 30px; height: 30px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: var(--r-xs);
+      color: rgba(255,255,255,.7);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--t-spring);
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255,255,255,.2);
+      color: #fff;
+      transform: rotate(90deg) scale(1.1);
+    }
+
+    .book-modal-body { padding: 24px; }
+
+    .slots-section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 12px;
+    }
+
+    .slot-pick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .slot-pick {
+      padding: 12px;
+      border-radius: var(--r-sm);
+      border: 1.5px solid var(--border);
+      background: var(--cream-2);
+      cursor: pointer;
+      transition: var(--t-spring);
+      text-align: center;
+      font-family: var(--font);
+    }
+
+    .slot-pick:hover:not(.slot-full) {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      transform: translateY(-2px);
+    }
+
+    .slot-pick.selected {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 3px 12px var(--accent-glow);
+      transform: scale(1.03);
+    }
+
+    .slot-pick.slot-full { opacity: .4; cursor: not-allowed; }
+
+    .slot-time { font-size: .825rem; font-weight: 700; display: block; margin-bottom: 3px; }
+    .slot-cap  { font-size: .7rem; opacity: .75; display: block; }
+    .slot-pick.selected .slot-time,
+    .slot-pick.selected .slot-cap { color: #fff; }
+
+    .book-modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--cream-2);
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ── Empty / Loading States ── */
+    .empty-wrap {
+      text-align: center;
+      padding: 80px 20px;
+      grid-column: 1 / -1;
+    }
+
+    .empty-icon-wrap {
+      width: 72px; height: 72px;
+      background: var(--cream-2);
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      transition: var(--t-spring);
+    }
+
+    .empty-wrap:hover .empty-icon-wrap {
+      transform: translateY(-4px);
+      border-color: var(--accent-border);
+      background: var(--accent-light);
+    }
+
+    .empty-wrap h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+      letter-spacing: -.02em;
+    }
+
+    .empty-wrap p { color: var(--ink-soft); font-size: .875rem; }
+
+    @media (max-width: 640px) {
+      .search-box { flex-wrap: wrap; padding: 12px 16px; }
+      .filter-pills { width: 100%; }
+      .interviews-grid { grid-template-columns: 1fr; }
+      .icard-info-grid { grid-template-columns: 1fr; }
+      .browse-hero { padding: 36px 20px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="nav-brand" href="../index.html">
+    <div class="nav-brand-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+        <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+      </svg>
+    </div>
+    Hire<span>Walk</span>
+  </a>
+  <div class="nav-links" id="nav-right"></div>
+</nav>
+
+<!-- Hero -->
+<div class="browse-hero">
+  <div class="browse-hero-content">
+    <h1>Browse Walk-in <em>Interviews</em></h1>
+    <p>Discover opportunities from top companies — book your slot instantly</p>
+  </div>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-box">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Search by role, company, or location..." oninput="filterCards()"/>
+    <div class="filter-pills">
+      <button class="filter-pill active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-pill" onclick="setFilter('today',this)">Today</button>
+      <button class="filter-pill" onclick="setFilter('week',this)">This Week</button>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="browse-content">
+
+  <!-- Active Booking Banner -->
+  <div id="active-banner" style="display:none" class="active-banner">
+    <div class="active-banner-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <p id="banner-text">You have an active booking.</p>
+    <button class="btn btn-secondary btn-sm" onclick="location.href='dashboard.html'" style="flex-shrink:0">View Booking</button>
+  </div>
+
+  <!-- Results Header -->
+  <div class="results-header">
+    <p class="results-count" id="results-count">Loading interviews...</p>
+    <button class="btn btn-primary btn-sm" onclick="location.href='mock-interview.html'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+      AI Mock Interview
+    </button>
+  </div>
+
+  <!-- Grid -->
+  <div id="interviews-grid">
+    <div style="text-align:center;padding:80px 20px">
+      <span class="spinner spinner-dark" style="width:28px;height:28px;border-top-color:var(--accent)"></span>
+      <p style="margin-top:14px;color:var(--ink-soft);font-size:.875rem">Loading interviews...</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" id="book-modal">
+  <div class="book-modal">
+    <div class="book-modal-header">
+      <div class="modal-header-info">
+        <div class="modal-company-tag" id="modal-company-tag">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Company
+        </div>
+        <h3 id="modal-role">Book Interview Slot</h3>
+        <div class="modal-meta-row" id="modal-meta-row"></div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="book-modal-body">
+      <div id="modal-alert"></div>
+      <p class="slots-section-label">Available Time Slots — Pick One</p>
+      <div class="slot-pick-grid" id="slot-pick-grid"></div>
+    </div>
+    <div class="book-modal-footer">
+      <button class="btn btn-primary" id="confirm-btn" onclick="confirmBooking()" style="flex:1;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirm Booking
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const user = Auth.get();
+  Auth.requireAuth('user');
+
+  document.getElementById('nav-right').innerHTML = `
+    <button class="nav-btn ghost" onclick="location.href='dashboard.html'">My Bookings</button>
+    <button class="nav-btn ghost" onclick="location.href='mock-interview.html'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+      AI Mock
+    </button>
+    <span style="color:var(--ink-soft);font-size:.825rem;padding:0 4px">Hi, ${user?.name?.split(' ')[0]}</span>
+    <button class="nav-btn filled" onclick="Auth.logout()">Logout</button>
+  `;
+
+  let allInterviews    = [];
+  let activeBooking    = null;
+  let selectedSlotId   = null;
+  let currentInterview = null;
+  let currentFilter    = 'all';
+
+  // Helper: get initials for company logo
+  function initials(name) {
+    return (name || '?').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  // Helper: format date nicely
+  function fmtDate(d) {
+    if (!d) return '—';
+    try {
+      return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch { return d; }
+  }
+
+  async function load() {
+    try {
+      const [{ interviews }, { bookings }] = await Promise.all([
+        Api.getInterviews(),
+        Api.myBookings()
+      ]);
+
+      allInterviews = interviews;
+      activeBooking = bookings.find(b =>
+        b.status === 'confirmed' && new Date(b.interview_date) >= new Date()
+      );
+
+      if (activeBooking) {
+        document.getElementById('active-banner').style.display = 'flex';
+        document.getElementById('banner-text').innerHTML =
+          `You have an active booking: <strong>${activeBooking.role}</strong> at <strong>${activeBooking.company_name}</strong> on ${fmtDate(activeBooking.interview_date)}. Cancel it to book a new slot.`;
+      }
+
+      renderGrid(interviews);
+    } catch (err) {
+      document.getElementById('interviews-grid').innerHTML =
+        `<div class="alert alert-error" style="margin:0">${err.message}</div>`;
+    }
+  }
+
+  function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    filterCards();
+  }
+
+  function filterCards() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const today = new Date().toISOString().split('T')[0];
+    const weekEnd = new Date();
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const list = allInterviews.filter(i => {
+      const matchQ = !q ||
+        i.role.toLowerCase().includes(q) ||
+        i.company_name.toLowerCase().includes(q) ||
+        (i.location || '').toLowerCase().includes(q);
+
+      let matchF = true;
+      if (currentFilter === 'today') matchF = i.interview_date === today;
+      if (currentFilter === 'week')  matchF = new Date(i.interview_date) <= weekEnd;
+
+      return matchQ && matchF;
+    });
+
+    renderGrid(list);
+  }
+
+  function renderGrid(list) {
+    const grid  = document.getElementById('interviews-grid');
+    const count = document.getElementById('results-count');
+
+    count.innerHTML = `<strong>${list.length}</strong> interview${list.length !== 1 ? 's' : ''} found`;
+
+    if (!list.length) {
+      grid.innerHTML = `
+        <div class="interviews-grid">
+          <div class="empty-wrap">
+            <div class="empty-icon-wrap">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3>No interviews found</h3>
+            <p>Try adjusting your search or check back later for new opportunities</p>
+          </div>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = `<div class="interviews-grid">${list.map((i, idx) => renderCard(i, idx)).join('')}</div>`;
+  }
+
+  function renderCard(i, idx) {
+    const available = (i.slots || []).filter(s => s.booked_count < s.total_capacity);
+    const isFull    = available.length === 0;
+    const isBooked  = activeBooking && activeBooking.interview_id === i.id;
+    const delay     = Math.min(idx * 0.05, 0.4);
+
+    const logoLetters = initials(i.company_name);
+
+    return `
+      <div class="icard" style="animation-delay:${delay}s">
+
+        <!-- Header: company + role + tags -->
+        <div class="icard-header">
+          <div class="icard-company-row">
+            <div class="company-logo">${logoLetters}</div>
+            <div class="company-info">
+              <div class="company-name">${i.company_name}</div>
+              <div class="company-status">
+                <span class="status-dot"></span>
+                Actively Hiring
+              </div>
+            </div>
+          </div>
+
+          <div class="icard-role">${i.role}</div>
+
+          <div class="icard-tags">
+            <span class="itag itag-accent">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              ${i.package}
+            </span>
+            ${i.location ? `
+            <span class="itag">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${i.location}
+            </span>` : ''}
+          </div>
+        </div>
+
+        <!-- Body: key info grid + description -->
+        <div class="icard-body">
+          <div class="icard-info-grid">
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="info-text">
+                <div class="info-label">Interview Date</div>
+                <div class="info-value">${fmtDate(i.interview_date)}</div>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div class="info-text">
+                <div class="info-label">Candidates Needed</div>
+                <div class="info-value">${i.candidates_required} positions</div>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="info-text">
+                <div class="info-label">Time Slots</div>
+                <div class="info-value">${i.slots?.length || 0} slots · ${available.length} open</div>
+              </div>
+            </div>
+            ${i.location ? `
+            <div class="info-item">
+              <div class="info-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div class="info-text">
+                <div class="info-label">Location</div>
+                <div class="info-value">${i.location}</div>
+              </div>
+            </div>` : ''}
+          </div>
+
+          ${i.job_description ? `<p class="icard-desc">${i.job_description}</p>` : ''}
+        </div>
+
+        <!-- Footer: slots status + action -->
+        <div class="icard-footer">
+          ${isBooked ? `
+            <span class="slots-badge booked">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Slot Booked
+            </span>
+            <button class="btn btn-secondary btn-sm" onclick="location.href='dashboard.html'">View Booking</button>
+          ` : isFull ? `
+            <span class="slots-badge full">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              All slots filled
+            </span>
+            <button class="btn btn-ghost btn-sm" disabled style="opacity:.45;cursor:not-allowed">Fully Booked</button>
+          ` : `
+            <span class="slots-badge open">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>
+              ${available.length} slot${available.length > 1 ? 's' : ''} open
+            </span>
+            <button class="btn btn-primary btn-sm" onclick='openModal(${JSON.stringify(i).replace(/'/g,"&#39;")})'>
+              Book Slot
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          `}
+        </div>
+      </div>`;
+  }
+
+  function openModal(interview) {
+    currentInterview = interview;
+    selectedSlotId   = null;
+
+    // Company tag
+    document.getElementById('modal-company-tag').innerHTML = `
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      ${interview.company_name}
+    `;
+
+    document.getElementById('modal-role').textContent = interview.role;
+    document.getElementById('modal-alert').innerHTML  = '';
+
+    // Meta chips: date, location, package
+    document.getElementById('modal-meta-row').innerHTML = `
+      <div class="modal-meta-chip">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        ${fmtDate(interview.interview_date)}
+      </div>
+      ${interview.location ? `
+      <div class="modal-meta-chip">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        ${interview.location}
+      </div>` : ''}
+      <div class="modal-meta-chip">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        ${interview.package}
+      </div>
+    `;
+
+    const available = (interview.slots || []).filter(s => s.booked_count < s.total_capacity);
+
+    document.getElementById('slot-pick-grid').innerHTML = available.length
+      ? available.map(s => `
+          <div class="slot-pick" onclick="selectSlot(this, ${s.id})" data-id="${s.id}">
+            <span class="slot-time">${s.slot_time}</span>
+            <span class="slot-cap">${s.total_capacity - s.booked_count} spot${s.total_capacity - s.booked_count !== 1 ? 's' : ''} left</span>
+          </div>`).join('')
+      : `<p style="color:var(--ink-soft);font-size:.85rem;grid-column:1/-1">No available slots.</p>`;
+
+    document.getElementById('book-modal').classList.add('active');
+  }
+
+  function selectSlot(el, id) {
+    document.querySelectorAll('.slot-pick').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedSlotId = id;
+  }
+
+  function closeModal() {
+    document.getElementById('book-modal').classList.remove('active');
+  }
+
+  async function confirmBooking() {
+    if (!selectedSlotId) {
+      showAlert(document.getElementById('modal-alert'), 'Please select a time slot first');
+      return;
+    }
+    if (activeBooking) {
+      showAlert(document.getElementById('modal-alert'), 'Cancel your current active booking first to book a new slot');
+      return;
+    }
+
+    const btn = document.getElementById('confirm-btn');
+    setLoading(btn, true, 'Booking...');
+    try {
+      await Api.book({ interview_id: currentInterview.id, slot_id: selectedSlotId });
+      closeModal();
+      showToast('🎉 Booking confirmed! Check your email for details.');
+      load();
+    } catch (err) {
+      showAlert(document.getElementById('modal-alert'), err.message);
+    } finally {
+      setLoading(btn, false);
+    }
+  }
+
+  document.getElementById('book-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  function showToast(message) {
+    const existing = document.getElementById('toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'toast';
+    Object.assign(toast.style, {
+      position: 'fixed', bottom: '32px', left: '50%',
+      transform: 'translateX(-50%)',
+      background: 'var(--success)', color: '#fff',
+      padding: '14px 24px', borderRadius: 'var(--r-sm)',
+      fontSize: '.875rem', fontWeight: '600',
+      fontFamily: 'var(--font)',
+      boxShadow: 'var(--shadow-lg)',
+      zIndex: '9999', display: 'flex', alignItems: 'center', gap: '8px',
+      whiteSpace: 'nowrap',
+      animation: 'toastIn .3s cubic-bezier(.34,1.56,.64,1)',
+    });
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    const style = document.createElement('style');
+    style.textContent = `@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }`;
+    document.head.appendChild(style);
+
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  load();
+</script>
+</body>
+</html>

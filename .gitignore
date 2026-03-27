@@ -1,0 +1,28 @@
+nano .gitignore
+```
+```
+# Environment
+.env
+.env.local
+backend/.env
+
+# Terraform
+terraform/*.tfvars
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+
+# Logs
+*.log
+
+# Node
+node_modules/
+.supabase/
+```
+
+---
+
+## Why `.terraform.lock.hcl` Gets Created
+```
+terraform init → creates .terraform.lock.hcl automatically
